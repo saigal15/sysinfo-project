@@ -1,51 +1,62 @@
 #!/bin/bash
-# sysinfo.sh - rapport système léger, conçu pour être lancé par cron
-# Chemin absolu pour éviter les problèmes d'environnement cron
-HOME_DIR="/home/Mommsen"            # <-- remplace Mommsen par ton user si différent
-LOGFILE="$HOME_DIR/logs/sysinfo.log"
 
-# PATH complet pour cron
-PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
-export PATH
+echo "System Info Tool - v2.0"
 
-# Verrou simple pour éviter exécutions concurrentes (optionnel mais utile)
-LOCKFILE="/tmp/sysinfo.lock"
-exec 200>"$LOCKFILE"
-flock -n 200 || exit 0
+# Charger les modules
+source lib/utils.sh
+source lib/cpu.sh
+source lib/memory.sh
+source lib/disk.sh
+source lib/system.sh
 
-# En-tête
-echo "========================================" >> "$LOGFILE"
-echo "SYSTEM REPORT - $(date +"%Y-%m-%d %H:%M:%S")" >> "$LOGFILE"
-echo "========================================" >> "$LOGFILE"
+show_help() {
+    echo "Usage: $0 [OPTION]"
+    echo "  --cpu       Affiche les infos CPU"
+    echo "  --memory    Affiche les infos mémoire"
+    echo "  --disk      Affiche les infos disque"
+    echo "  --uptime    Affiche le temps d'uptime"
+    echo "  --top       Affiche les 5 processus les plus gourmands en CPU"
+    echo "  --all       Tout afficher"
+    echo "  --help      Afficher l'aide"
+}
 
-# Uptime
-echo "[UPTIME]" >> "$LOGFILE"
-uptime -p >> "$LOGFILE"
-echo "" >> "$LOGFILE"
-
-# CPU Usage
-echo "[CPU USAGE]" >> "$LOGFILE"
-# extraire la ligne Cpu(s) et afficher la charge utilisateur+system
-top -bn1 | awk '/Cpu/ {print "CPU: " $2 + $4 "% used (user+sys)"}' >> "$LOGFILE" 2>/dev/null
-echo "" >> "$LOGFILE"
-
-# RAM Usage
-echo "[MEMORY USAGE]" >> "$LOGFILE"
-free -h | awk '/Mem:/ {print "Total: "$2", Used: "$3", Free: "$4}' >> "$LOGFILE"
-echo "" >> "$LOGFILE"
-
-# Disk Usage
-echo "[DISK USAGE]" >> "$LOGFILE"
-df -h >> "$LOGFILE"
-echo "" >> "$LOGFILE"
-
-# Top 5 Processes by CPU
-echo "[TOP 5 PROCESSES]" >> "$LOGFILE"
-ps -eo pid,comm,%cpu,%mem --sort=-%cpu | head -n 6 >> "$LOGFILE"
-echo "" >> "$LOGFILE"
-
-echo "----------------------------------------" >> "$LOGFILE"
-echo "" >> "$LOGFILE"
-
-# libération du verrou (se fait automatiquement à la fin du script)
+# Gestion des arguments
+case "$1" in
+  --cpu)
+    log "INFO" "Option --cpu exécutée"
+    cpu_info
+    ;;
+  --memory)
+    log "INFO" "Option --memory exécutée"
+    memory_info
+    ;;
+  --disk)
+    log "INFO" "Option --disk exécutée"
+    disk_info
+    ;;
+  --uptime)
+    log "INFO" "Option --uptime exécutée"
+    uptime_info
+    ;;
+  --top)
+    log "INFO" "Option --top exécutée"
+    top_processes
+    ;;
+  --all)
+    log "INFO" "Option --all exécutée"
+    cpu_info
+    memory_info
+    disk_info
+    uptime_info
+    top_processes
+    ;;
+  --help)
+    log "INFO" "Option --help exécutée"
+    show_help
+    ;;
+  *)
+    log "ERROR" "Option inconnue: $1"
+    show_help
+    ;;
+esac
 

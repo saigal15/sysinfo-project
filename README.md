@@ -1,37 +1,105 @@
-# SysInfo Monitoring Script
+# Sysinfo Project - v2.0
 
-Ce projet contient un script Bash complet permettant de surveiller en continu l'état d'un système Linux.  
-Il génère un rapport contenant :
-
-- Uptime du système  
-- Utilisation CPU (user + system)  
-- Utilisation de la RAM  
-- Utilisation des disques (df -h)  
-- Top 5 des processus les plus gourmands  
-- Formatage propre et lisible dans un fichier log  
-- Rotation automatique des logs  
-- Exécution automatique via systemd ou cron
+Un outil simple mais puissant pour monitorer les ressources système et pratiquer l'automatisation avec Bash.
 
 ---
 
-## 📌 Fonctionnalités principales
+## Objectif
 
-### 🔎 Monitoring système
-Le script collecte et écrit dans un fichier log les informations suivantes :
+- Pratiquer et renforcer les compétences DevOps : scripting, logging, modularité, gestion des services.
+- Créer un projet concret pour le portfolio.
+- Préparer les bases pour CI/CD et conteneurisation.
 
-- Date et heure
-- Uptime
-- CPU usage
-- RAM usage
-- Disk usage
-- Top 5 processes
+---
 
-### ��️ Logs avec rotation automatique
-Grâce à `logrotate`, les logs sont compressés et archivés quotidiennement.
+## Structure du projet
 
-### ⚙️ Service Systemd + Timer
-Le script peut être exécuté automatiquement toutes les 5 minutes grâce à :
+sysinfo.sh # Script principal, gère les arguments
+lib/
+├─ utils.sh # Fonctions utilitaires (log, vérification de commandes)
+├─ cpu.sh # Fonction cpu_info()
+├─ memory.sh # Fonction memory_info()
+├─ disk.sh # Fonction disk_info()
+logs/
+└─ sysinfo.log # Historique des exécutions
 
-- un **service systemd**
-- un **timer systemd**
+yaml
+Copier le code
 
+---
+
+##  Fonctionnalités
+
+- **Système modulaire :** chaque composant a sa responsabilité.
+- **Arguments disponibles :**
+  - `--cpu` : affiche les infos CPU
+  - `--memory` : affiche les infos mémoire
+  - `--disk` : affiche les infos disque
+  - `--all` : affiche tout
+  - `--help` : affiche l'aide
+- **Logging :** toutes les actions sont enregistrées dans `~/logs/sysinfo.log`
+- **Gestion des erreurs :** les options inconnues sont détectées et loggées.
+
+---
+
+## Exemple d'utilisation
+
+```bash
+# CPU uniquement
+./sysinfo.sh --cpu
+
+# Mémoire uniquement
+./sysinfo.sh --memory
+
+# Disque uniquement
+./sysinfo.sh --disk
+
+# Tout afficher
+./sysinfo.sh --all
+
+# Aide
+./sysinfo.sh --help
+
+# Option inconnue
+./sysinfo.sh --bad
+# => message d'erreur et log
+# Installation / Pré-requis
+Système Linux (Ubuntu recommandé)
+
+Bash
+
+Accès en écriture au dossier ~/logs
+
+Commandes : top, free, df, lscpu (pour CPU, mémoire et disque)
+
+# Commandes utiles
+bash
+Copier le code
+# Rendre le script et modules exécutables
+chmod +x sysinfo.sh
+chmod +x lib/*.sh
+
+# Lancer le script
+./sysinfo.sh --all
+
+# Vérifier les logs
+tail -n 20 ~/logs/sysinfo.log
+## Logique interne
+sysinfo.sh charge tous les modules (utils.sh, cpu.sh, memory.sh, disk.sh) avec source.
+
+Chaque argument déclenche une fonction spécifique.
+
+Les fonctions enregistrent un log [INFO] ou [ERROR] pour chaque exécution.
+
+Le script peut être facilement étendu avec de nouvelles fonctions ou options.
+
+# Notes de version
+v2.0
+
+Modularisation : fonctions CPU, mémoire, disque séparées
+
+Logging avec utils.sh
+
+Gestion des arguments et erreurs
+
+Compatible avec future automatisation / cron / systemd
