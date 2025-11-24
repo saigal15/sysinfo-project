@@ -1,0 +1,10 @@
+version: "3.9"
+
+services:
+  sysinfo:
+    image: sysinfo:latest
+    container_name: sysinfo-container
+    volumes:
+      - ./logs:/home/sysinfo/logs
+    entrypoint: ["/usr/local/bin/sysinfo.sh"]
+    command: ["--all"]

@@ -1,13 +1,26 @@
 #!/bin/bash
+# Detect script directory
+SCRIPT_DIR=$(dirname "$(realpath "$0")")
+
+# If running locally (lib in project)
+if [ -d "$SCRIPT_DIR/lib" ]; then
+    LIB_DIR="$SCRIPT_DIR/lib"
+elif [ -d "/usr/local/lib/sysinfo-lib" ]; then
+    LIB_DIR="/usr/local/lib/sysinfo-lib"
+else
+    echo "ERROR: No library directory found"
+    exit 1
+fi
+
+# Load modules
+source "$LIB_DIR/utils.sh"
+source "$LIB_DIR/cpu.sh"
+source "$LIB_DIR/memory.sh"
+source "$LIB_DIR/disk.sh"
+source "$LIB_DIR/system.sh"
+
 
 echo "System Info Tool - v2.0"
-
-# Charger les modules
-source lib/utils.sh
-source lib/cpu.sh
-source lib/memory.sh
-source lib/disk.sh
-source lib/system.sh
 
 show_help() {
     echo "Usage: $0 [OPTION]"
