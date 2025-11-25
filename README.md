@@ -103,3 +103,91 @@ Logging avec utils.sh
 Gestion des arguments et erreurs
 
 Compatible avec future automatisation / cron / systemd
+
+# Sysinfo - System Info Tool
+
+## Description
+Sysinfo est un outil Bash qui collecte et affiche des informations système : CPU, mémoire, disque, uptime et top processes.  
+Cette version inclut :
+- Modularisation des scripts en plusieurs fichiers
+- Logs détaillés et gestion des erreurs
+- Tests automatisés avec BATS
+- Intégration Docker avec build multi-stage
+
+## Features
+✅ Modularisation du script (`cpu.sh`, `memory.sh`, `disk.sh`, `utils.sh`, `system.sh`)  
+✅ Gestion avancée des arguments : `--cpu`, `--memory`, `--disk`, `--uptime`, `--top`, `--all`, `--help`  
+✅ Logging avec niveaux INFO/ERROR  
+✅ Tests unitaires BATS intégrés  
+✅ Docker multi-stage build pour une image légère et portable  
+
+## Prérequis
+- Linux / macOS / Windows (Docker Desktop recommandé)
+- Docker et Docker Compose installés
+- Git pour cloner le projet
+
+## Installation et usage local
+```bash
+# Cloner le repo
+git clone https://github.com/mommsen/sysinfo-project.git
+cd sysinfo-project
+
+# Exécuter le script directement
+bash sysinfo.sh --help
+bash sysinfo.sh --all
+
+#Exécution des tests
+
+Tests automatisés avec BATS :
+
+# Installer bats si nécessaire
+sudo apt install bats
+
+# Exécuter les tests
+bats tests/sysinfo.bats
+
+
+## Docker
+# Build multi-stage
+
+docker build -t sysinfo:latest .
+
+
+# Run l'image
+docker run --rm sysinfo:latest --all
+
+# Tests dans Docker
+docker run --rm sysinfo:latest bats tests/sysinfo.bats
+
+# Push sur Docker Hub
+docker tag sysinfo mommsen15/sysinfo:v1
+docker push mommsen15/sysinfo:v1
+
+
+# Image disponible ici : Docker Hub
+
+Docker Compose (optionnel)
+
+Si tu veux lancer le container via Docker Compose :
+
+docker-compose up
+
+## Objectif
+
+Ce projet montre mes compétences DevOps :
+
+Scripting Bash modulaires
+
+Gestion des logs et erreurs
+
+Tests unitaires automatisés
+
+Création et optimisation d’images Docker
+
+Préparation à CI/CD et déploiement Kubernetes futur
+
+## Liens utiles
+
+GitHub : https://github.com/mommsen/sysinfo-project
+
+Docker Hub : https://hub.docker.com/r/mommsen15/sysinfo
