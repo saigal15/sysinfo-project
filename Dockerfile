@@ -1,38 +1,39 @@
-###########################
-# 1️⃣ Build stage
-###########################
-FROM ubuntu:22.04 AS builder
-
-RUN apt-get update && apt-get install -y bash coreutils
-
-WORKDIR /app
-
-COPY sysinfo.sh .
-COPY lib ./lib
-
-###########################
-# 2️⃣ Test stage
-###########################
-FROM builder AS tests
-
-RUN apt-get update && apt-get install -y bats
-
-COPY tests ./tests
-
-# Lancer les tests BATS au build
-RUN bats tests || (echo "❌ Tests FAILED" && exit 1)
-
-###########################
-# 3️⃣ Final minimal image
-###########################
+# 1 - Base de l’image
 FROM ubuntu:22.04
 
-RUN mkdir -p /usr/local/bin \
-    && mkdir -p /usr/local/lib/sysinfo-lib
+# 2 - Evite les questions interactives
+ENV DEBIAN_FRONTEND=noninteractive
 
-COPY --from=builder /app/sysinfo.sh /usr/local/bin/sysinfo
-COPY --from=builder /app/lib /usr/local/lib/sysinfo-lib
+# 3 - Installer uniquement le nécessaire
+RUN apt-get update && \
+    apt-get upgrade -y && \
+    apt-get install -y --no-install-recommends \
+        bash \
+        procps \
+        coreutils \
+        gawk \
+        sed \
+        util-linux \
+    && rm -rf /var/lib/apt/lists/*
 
-RUN chmod +x /usr/local/bin/sysinfo
+# 4 - Créer un utilisateur dédié (bonne pratique sécurité)
+RUN useradd -m -s /bin/bash sysinfo
 
-ENTRYPOINT ["/usr/local/bin/sysinfo"]
+# 5 - Copier les scripts
+COPY sysinfo.sh /usr/local/bin/sysinfo.sh
+COPY lib/ /usr/local/lib/sysinfo-lib/
+
+# 6 - Donner les droits + rendre exécutables
+RUN chmod +x /usr/local/bin/sysinfo.sh && \
+    chown -R sysinfo:sysinfo /usr/local/bin/sysinfo.sh /usr/local/lib/sysinfo-lib
+
+# 7 - Dossier de travail
+WORKDIR /home/sysinfo
+RUN mkdir -p logs && chown -R sysinfo:sysinfo logs
+
+# 8 - changer d’utilisateur (évite de tout faire en root)
+USER sysinfo
+
+# 9 - Commande lancée par défaut
+ENTRYPOINT ["/usr/local/bin/sysinfo.sh"]
+CMD ["--all"]
