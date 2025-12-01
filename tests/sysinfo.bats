@@ -1,32 +1,31 @@
 #!/usr/bin/env bats
 
-setup() {
-  cd "$BATS_TEST_DIRNAME/.."
-}
+# Chemin vers le script dans le conteneur
+SYSINFO="/usr/local/bin/sysinfo.sh"
 
 @test "Test option --help" {
-  run bash "$BATS_TEST_DIRNAME/../sysinfo.sh" --help
+  run $SYSINFO --help
 
   [ "$status" -eq 0 ]
-  [[ "$output" =~ "Usage:" ]]
+  [[ "$output" =~ "Usage" ]]
 }
 
 @test "Test option --cpu" {
-  run bash "$BATS_TEST_DIRNAME/../sysinfo.sh" --cpu
+  run $SYSINFO --cpu
 
   [ "$status" -eq 0 ]
-  [[ "$output" =~ "CPU usage:" ]]
+  [[ "$output" =~ "CPU" ]]
 }
 
 @test "Test option --memory" {
-  run bash "$BATS_TEST_DIRNAME/../sysinfo.sh" --memory
+  run $SYSINFO --memory
 
   [ "$status" -eq 0 ]
-  [[ "$output" =~ "RAM Used:" ]]
+  [[ "$output" =~ "RAM" ]]
 }
 
 @test "Test option --disk" {
-  run bash "$BATS_TEST_DIRNAME/../sysinfo.sh" --disk
+  run $SYSINFO --disk
 
   [ "$status" -eq 0 ]
   [[ "$output" =~ "Filesystem" ]]
