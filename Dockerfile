@@ -1,70 +1,48 @@
-##############################################
-# 1️⃣ STAGE : TESTS (avec BATS)
-##############################################
-FROM ubuntu:22.04 AS tests
+############
+# BASE
+############
+FROM ubuntu:22.04 AS base
 
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Installer Bats + dépendances nécessaires
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends \
-        bats \
-        bash \
-        procps \
-        coreutils \
-        gawk \
-        sed \
-        util-linux && \
-    rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y \
+    bash procps coreutils gawk sed util-linux \
+    && rm -rf /var/lib/apt/lists/*
 
-# Copier les scripts et tests
+############
+# TESTS STAGE
+############
+FROM base AS tests
+
+# Installer bats
+RUN apt-get update && apt-get install -y bats && rm -rf /var/lib/apt/lists/*
+
+# Copier les fichiers nécessaires aux tests
 COPY sysinfo.sh /usr/local/bin/sysinfo.sh
 COPY lib/ /usr/local/lib/sysinfo-lib/
 COPY tests/ /tests/
 
-# Rendre le script exécutable
 RUN chmod +x /usr/local/bin/sysinfo.sh
 
-# Commande exécutée lors des tests
-CMD ["bats", "/tests/sysinfo.bats"]
+ENTRYPOINT ["bats", "/tests/sysinfo.bats"]
 
+############
+# FINAL IMAGE
+############
+FROM base AS final
 
-##############################################
-# 2️⃣ STAGE : FINAL (IMAGE POUR LA PROD)
-##############################################
-FROM ubuntu:22.04 AS final
-
-ENV DEBIAN_FRONTEND=noninteractive
-
-# Installer le strict minimum
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends \
-        bash \
-        procps \
-        coreutils \
-        gawk \
-        sed \
-        util-linux \
-    && rm -rf /var/lib/apt/lists/*
-
-# Créer un utilisateur non-root
 RUN useradd -m -s /bin/bash sysinfo
 
-# Copier seulement ce qui est nécessaire en production
 COPY sysinfo.sh /usr/local/bin/sysinfo.sh
 COPY lib/ /usr/local/lib/sysinfo-lib/
 
-# Permissions et sécurité
-RUN chmod +x /usr/local/bin/sysinfo.sh && \
-    chown -R sysinfo:sysinfo /usr/local/bin/sysinfo.sh /usr/local/lib/sysinfo-lib
+RUN chmod +x /usr/local/bin/sysinfo.sh \
+    && chown -R sysinfo:sysinfo /usr/local
 
-# Dossier de travail
+USER sysinfo
+
 WORKDIR /home/sysinfo
 RUN mkdir -p logs && chown -R sysinfo:sysinfo logs
 
-# Utilisateur non-root
-USER sysinfo
-
-# Commandes par défaut
 ENTRYPOINT ["/usr/local/bin/sysinfo.sh"]
 CMD ["--all"]
