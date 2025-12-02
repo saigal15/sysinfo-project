@@ -172,6 +172,18 @@ Si tu veux lancer le container via Docker Compose :
 
 docker-compose up
 
+# CI/CD et versionning (Semaine 4)
+
+Pipeline GitHub Actions déclenché par push sur un tag versionné
+
+Build et push automatique de l’image Docker sur Docker Hub
+
+Tests BATS exécutés dans un stage Docker dédié
+
+Versionning automatique dans VERSION et tag Docker (sysinfo:1.0.1)
+
+Script release.sh pour automatiser build, tag et push
+
 ## Objectif
 
 Ce projet montre mes compétences DevOps :
